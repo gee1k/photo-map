@@ -1,0 +1,15 @@
+#photo-upload-container{
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  padding: 10px;
+  transform: translateX(-50%);
+}
+
+#photo-upload-container > div > span{
+  display: inline-block;
+}
+
+.photo-upload-btn {
+  margin-left: 10px;
+}

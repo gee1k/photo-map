@@ -5,14 +5,18 @@
   "author": "Svend <svend.jin@qq.com>",
   "homepage": "https://svend.cc/photo-map",
   "repository": {
-		"type": "git",
-		"url": "https://github.com/gee1k/photo-map"
+    "type": "git",
+    "url": "https://github.com/gee1k/photo-map"
   },
-  "keywords":["photo-map"],
-  "license":"MIT",
+  "keywords": [
+    "photo-map"
+  ],
+  "license": "MIT",
   "dependencies": {
+    "antd": "^3.4.1",
+    "exif-js": "^2.3.0",
     "gh-pages": "^1.1.0",
-    "maptalks": "^0.39.3",
+    "maptalks": "^0.39.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1"
