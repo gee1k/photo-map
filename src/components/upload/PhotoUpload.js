@@ -1,49 +1,62 @@
-import React from 'react';
-import { Upload, Button, Icon } from 'antd';
-import './PhotoUpload.css';
-import EXIF from 'exif-js';
+import React from 'react'
+import { Upload, Button, Icon } from 'antd'
+import './PhotoUpload.css'
+import EXIF from 'exif-js'
 
-const convertGps = (arr) => {
-  let [n, m, s] = arr;
-  return ((s/60) + m) / 60 + n;
+const convertGps = arr => {
+  let [n, m, s] = arr
+  return (s / 60 + m) / 60 + n
 }
 
-const getExif = (file) => {
-  return new Promise(function (resolve, reject) {
+const getExif = file => {
+  return new Promise(function(resolve, reject) {
     EXIF.getData(file, function() {
       // var exifData = EXIF.getAllTags(this, "Model");
-      let lat = EXIF.getTag(this, "GPSLatitude");
-      let lng = EXIF.getTag(this, "GPSLongitude");
-      let dateTime = EXIF.getTag(this, "DateTimeOriginal");
+      let lat = EXIF.getTag(this, 'GPSLatitude')
+      let lng = EXIF.getTag(this, 'GPSLongitude')
+      let dateTime = EXIF.getTag(this, 'DateTimeOriginal')
 
       if (!lat || !lng) {
-        return null;
+        resolve(null)
+        return
       }
-      let dateStr = '';
+      let dateStr = ''
       if (dateTime) {
-        let timeArr = dateTime.replace(' ', ':').split(':').map(item => +item);
-        let year = timeArr[0], month = timeArr[1] - 1, day = timeArr[2], hrs = timeArr[3], min = timeArr[4], sec = timeArr[5];
-        dateStr = new Date(year, month, day, hrs, min, sec).toLocaleString('zh', { hour12: false });
+        let timeArr = dateTime
+          .replace(' ', ':')
+          .split(':')
+          .map(item => +item)
+        let year = timeArr[0],
+          month = timeArr[1] - 1,
+          day = timeArr[2],
+          hrs = timeArr[3],
+          min = timeArr[4],
+          sec = timeArr[5]
+        dateStr = new Date(year, month, day, hrs, min, sec).toLocaleString(
+          'zh',
+          { hour12: false }
+        )
       }
-      
+      console.log(lng)
+      let x = convertGps(lng)
+      let y = convertGps(lat)
       let info = {
-        coord: [convertGps(lng), convertGps(lat)],
+        coord: [x, y],
         time: dateStr
-      };
-      resolve(info);
-    });
-  });
+      }
+      resolve(info)
+    })
+  })
 }
 
-const covert2Base64 = (file) => {
-  return new Promise(function (resolve, reject) {
-    let reader = new FileReader();  
-    reader.readAsDataURL(file);  
-    reader.onload = function(event) {  
-      resolve(this.result);
-    }  
-  });
-  
+const covert2Base64 = file => {
+  return new Promise(function(resolve, reject) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = function(event) {
+      resolve(this.result)
+    }
+  })
 }
 
 class PhotoUpload extends React.Component {
@@ -52,22 +65,23 @@ class PhotoUpload extends React.Component {
   }
 
   handleUpload = () => {
-    const { fileList } = this.state;
-    
-    const fileInfos = fileList.map(async (file) => {
-      const exifData = await getExif(file);
-      const base64 = await covert2Base64(file);
+    const { fileList } = this.state
+
+    const fileInfos = fileList.map(async file => {
+      const exifData = await getExif(file)
+      const base64 = await covert2Base64(file)
       return {
         file,
         exifData,
         base64
-      };
-    });
+      }
+    })
 
+    console.log(fileInfos)
     Promise.all(fileInfos).then(res => {
-      if (this.props.okCallback)
-        this.props.okCallback(res);
-    });
+      const result = res.filter(item => !!item.exifData)
+      if (this.props.okCallback) this.props.okCallback(result)
+    })
   }
 
   render() {
@@ -76,24 +90,24 @@ class PhotoUpload extends React.Component {
       multiple: true,
       accept: 'image/*',
       showUploadList: false,
-      onRemove: (file) => {
+      onRemove: file => {
         this.setState(({ fileList }) => {
-          const index = fileList.indexOf(file);
-          const newFileList = fileList.slice();
-          newFileList.splice(index, 1);
+          const index = fileList.indexOf(file)
+          const newFileList = fileList.slice()
+          newFileList.splice(index, 1)
           return {
-            fileList: newFileList,
-          };
-        });
+            fileList: newFileList
+          }
+        })
       },
-      beforeUpload: (file) => {
+      beforeUpload: file => {
         this.setState(({ fileList }) => ({
-          fileList: [...fileList, file],
-        }));
-        return false;
+          fileList: [...fileList, file]
+        }))
+        return false
       },
-      fileList: this.state.fileList,
-    };
+      fileList: this.state.fileList
+    }
 
     return (
       <div>
@@ -111,8 +125,8 @@ class PhotoUpload extends React.Component {
           选择完成
         </Button>
       </div>
-    );
+    )
   }
 }
 
-export default PhotoUpload;
+export default PhotoUpload
